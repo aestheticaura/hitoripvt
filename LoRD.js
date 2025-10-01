@@ -43,7 +43,6 @@ module.exports = conn = async (conn, m, msg, store) => {
         const text = q = args.join(' ')
         const mime = (quoted.msg || quoted).mimetype || ''
         const qmsg = (quoted.msg || quoted)
-        const match = text || qmsg;
         const author = db?.set?.[botNumber]?.author || 'LoRDx';
         const packname = db?.set?.[botNumber]?.packname || 'X-Asena';
         const readmore = String.fromCharCode(8206).repeat(999)
@@ -837,9 +836,9 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case 'insta': {
-                if (!Func.isUrl(match)) return m.reply(`_Url?_`);
+                if (!Func.isUrl(text)) return m.reply(`_Url?_`);
                 try {
-                    const res = await API.get("media.ig", { url: match });
+                    const res = await API.get("media.ig", { url: text });
                     const result = res.result;
                     if (!result.url.length === 0) return await m.reply("_Not Found!_");
                     if (result.url.length > 1) {
@@ -867,8 +866,8 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'play':
             case 'yta': {
                 const yts = require("yt-search");
-                if (!match) return m.reply(`Provide search query!`);
-                const res = await yts(match);
+                if (!text) return m.reply(`Provide search query!`);
+                const res = await yts(text);
                 const video = res.videos[0];
                 if (!video) throw new Error("No video found!");
                 const { title, url, views, ago, thumbnail, author } = video;
@@ -888,9 +887,9 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'story': {
-                if (!Func.isUrl(match)) return m.reply(`\n_Enter url!_\n`);
+                if (!Func.isUrl(text)) return m.reply(`\n_Enter url!_\n`);
                 try {
-                    const res = await API.get("media.story", { url: match });
+                    const res = await API.get("media.story", { url: text });
                     const result = res.result;
                     if (!Array.isArray(result) || result.length === 0) return m.reply("_Not Found!_");
                     await conn.sendFile(m.chat, result[0].url, "", m);
@@ -901,9 +900,9 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'spotify': {
-                if (!match) return m.reply(`_query?_`);
+                if (!text) return m.reply(`_query?_`);
                 try {
-                    const { result } = await API.get("media.spotify", { q: match });
+                    const { result } = await API.get("media.spotify", { q: text });
                     if (!result || result.length === 0) return m.reply('_No results found!_');
                     const cap = result.map((song, index) =>
                         `──────────────────\n*No:* ${index + 1}\n*Title:* ${song.title}\n*Artist:* ${song.artist}\n*Duration:* ${song.duration}\n*Url:* ${song.url}`).join('\n\n');
@@ -916,10 +915,10 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'spotifydl': {
-                if (!Func.isUrl(match)) return m.reply(`Example: ${prefix + command} https://open.spotify.com/track/0JiVRyTJcJnmlwCZ854K4p`)
-                if (!Func.isUrl(match) && !args[0].includes('open.spotify.com/track')) return m.reply('_Url Invalid!_')
+                if (!Func.isUrl(text)) return m.reply(`Example: ${prefix + command} https://open.spotify.com/track/0JiVRyTJcJnmlwCZ854K4p`)
+                if (!Func.isUrl(text) && !args[0].includes('open.spotify.com/track')) return m.reply('_Url Invalid!_')
                 try {
-                    const { result } = await API.get("media.spotify", { url: match });
+                    const { result } = await API.get("media.spotify", { url: text });
                     const thumb = Buffer.from((await axios.get(result.thumb, { responseType: "arraybuffer" })).data);
                     const msgg = {
                         document: { url: result.url }, mimetype: "audio/mp3", fileName: `${result.title}.mp3`, contextInfo: {
@@ -956,9 +955,9 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case 'lyrics': {
-                if (!match) return m.reply(`\n_Enter query!_\n`);
+                if (!text) return m.reply(`\n_Enter query!_\n`);
                 try {
-                    const { result } = await API.get("media.lyrics", { q: match });
+                    const { result } = await API.get("media.lyrics", { q: text });
                     if (!Array.isArray(result) || result.length === 0) return m.reply("_Not Found!_");
                     let three = result.slice(0, 3);
                     let buttons = three.map((song, i) => ({
@@ -967,7 +966,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                         type: 1
                     }));
 
-                    let caption = `\n*Matching Results for:* ${match}\n`
+                    let caption = `\n*Matching Results for:* ${text}\n`
                     await conn.sendButton(m.chat, { text: caption, footer: "LoRDx", buttons }, { quoted: m });
                 } catch (e) {
                     console.error(e);
