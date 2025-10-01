@@ -864,7 +864,8 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break;
-            case 'play': {
+            case 'play':
+            case 'yta': {
                 const yts = require("yt-search");
                 if (!match) return m.reply(`Provide search query!`);
                 const res = await yts(match);
@@ -899,11 +900,26 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break;
+            case 'spotify': {
+                if (!match) return m.reply(`_query?_`);
+                try {
+                    const { result } = await API.get("media.spotify", { q: match });
+                    if (!result || result.length === 0) return m.reply('_No results found!_');
+                    const cap = result.map((song, index) =>
+                        `──────────────────\n*No:* ${index + 1}\n*Title:* ${song.title}\n*Artist:* ${song.artist}\n*Duration:* ${song.duration}\n*Url:* ${song.url}`).join('\n\n');
+                    const thumb = Buffer.from((await axios.get(result[0].thumbnail, { responseType: "arraybuffer" })).data);
+                    return await m.reply({ image: thumb, caption: cap.trim() });
+                } catch (e) {
+                    console.error(e);
+                    m.reply('_Error!_');
+                }
+            }
+                break;
             case 'spotifydl': {
                 if (!Func.isUrl(match)) return m.reply(`Example: ${prefix + command} https://open.spotify.com/track/0JiVRyTJcJnmlwCZ854K4p`)
                 if (!Func.isUrl(match) && !args[0].includes('open.spotify.com/track')) return m.reply('_Url Invalid!_')
                 try {
-                    const { result } = await API.get("media.spotify", { url: text });
+                    const { result } = await API.get("media.spotify", { url: match });
                     const thumb = Buffer.from((await axios.get(result.thumb, { responseType: "arraybuffer" })).data);
                     const msgg = {
                         document: { url: result.url }, mimetype: "audio/mp3", fileName: `${result.title}.mp3`, contextInfo: {

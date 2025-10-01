@@ -12,6 +12,7 @@ ${listv} _delcmd_
 ${listv} _listcmd_
 ${listv} _lockcmd_
 ${listv} _q_
+${listv} _delsession_
 
      *GROUP :-* 
 ${listv} _add_
@@ -27,12 +28,14 @@ ${listv} _npm_
 ${listv} _ytsearch_
 ${listv} _spotify_
 ${listv} _pinterest_
+${listv} _lyrics_
 
      *DOWNLOAD :-* 
 ${listv} _yta_
-${listv} _song_
+${listv} _play_
 ${listv} _ytv_
 ${listv} _insta_
+${listv} _story_
 ${listv} _spotifydl_
 
      *TOOLS :-* 
