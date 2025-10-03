@@ -866,7 +866,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'play':
             case 'yta': {
                 const yts = require("yt-search");
-                if (!text) return m.reply(`Provide search query!`);
+                if (!text) return m.reply(`_Enter query!_`);
                 const res = await yts(text);
                 const video = res.videos[0];
                 if (!video) throw new Error("No video found!");
@@ -900,7 +900,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'spotify': {
-                if (!text) return m.reply(`_query?_`);
+                if (!text) return m.reply(`_Enter query!_`);
                 try {
                     const { result } = await API.get("media.spotify", { q: text });
                     if (!result || result.length === 0) return m.reply('_No results found!_');
@@ -915,7 +915,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'spotifydl': {
-                if (!Func.isUrl(text)) return m.reply(`Example: ${prefix + command} https://open.spotify.com/track/0JiVRyTJcJnmlwCZ854K4p`)
+                if (!Func.isUrl(text)) return m.reply(`_Example: ${prefix + command} https://open.spotify.com/track/ABCD_`)
                 if (!Func.isUrl(text) && !args[0].includes('open.spotify.com/track')) return m.reply('_Url Invalid!_')
                 try {
                     const { result } = await API.get("media.spotify", { url: text });
