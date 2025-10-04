@@ -1058,7 +1058,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 await replay(result, "https://files.catbox.moe/8zkrmz.png");
             }
                 break;
-            case 'gpt': {
+            case 'gemini': {
                 if (!text) return m.reply("_Enter text!_");
                 const { result } = await API.get("ai.gemini", { q: text });
                 await replay(result, "https://files.catbox.moe/7mssif.png");
