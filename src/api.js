@@ -36,6 +36,7 @@ const API_BASE = "https://lordx.koyeb.app"
 const API_ROUTES = {
   ai:{
     gpt: "/api/ai/gpt",
+    gemini: "/api/ai/gemini",
     imgen: "/api/ai/imgen"
   },
   anime: {

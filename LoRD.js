@@ -47,12 +47,48 @@ module.exports = conn = async (conn, m, msg, store) => {
         const packname = db?.set?.[botNumber]?.packname || 'X-Asena';
         const readmore = String.fromCharCode(8206).repeat(999)
 
-        const fkontak = {
+        //FAKE
+        const qsticker = {
+            key: {
+                remoteJid: "0@s.whatsapp.net",
+                fromMe: false,
+                participant: '0@s.whatsapp.net'
+            },
+            message: {
+                stickerMessage: {
+                    url: 'https://mmg.whatsapp.net/v/t62.15575-24/11947109_1483660162620343_3717431073569425975_n.enc?ccb=11-4&oh=01_Q5Aa2AGQfiqV-_zlZXW4C1bZS9czI4TSKwgl4t31N5MNa0xy7Q&oe=689E780B&_nc_sid=5e03e0&mms3=true',
+                    fileSha256: 'NvwwT8u2zGFv92QJTyACQijYNzTatn82+cYTc+OC3Jw=',
+                    fileEncSha256: 'GF5RRFkMmwAg9VUu8O5hiFtaXNs/ysdj//lPwpZ6B9g=',
+                    mediaKey: 'BM4BD298A6LZxQVpJjrDAlRD6jZlUhlM6bD9HSvKxPk=',
+                    mimetype: 'image/webp',
+                    height: 64,
+                    width: 64,
+                    directPath: '/v/t62.15575-24/11947109_1483660162620343_3717431073569425975_n.enc?ccb=11-4&oh=01_Q5Aa2AGQfiqV-_zlZXW4C1bZS9czI4TSKwgl4t31N5MNa0xy7Q&oe=689E780B&_nc_sid=5e03e0',
+                }
+            }
+        };
+        const fgc = {
+            "key": {
+                "fromMe": false,
+                "participant": "0@s.whatsapp.net",
+                "remoteJid": "0@s.whatsapp.net"
+            },
+            "message": {
+                "groupInviteMessage": {
+                    "groupJid": "919778383987-1633449038@g.us",
+                    "inviteCode": "lordxddd",
+                    "groupName": "Basement",
+                    "caption": "Basement",
+                    'jpegThumbnail': global.thumb
+                }
+            }
+        }
+        const qcont = {
             key: {
                 remoteJid: '0@s.whatsapp.net',
                 participant: '0@s.whatsapp.net',
                 fromMe: false,
-                id: 'LoRD'
+                id: 'LoRDx'
             },
             message: {
                 contactMessage: {
@@ -65,7 +101,7 @@ module.exports = conn = async (conn, m, msg, store) => {
         const qlive = {
             key: {
                 participant: "0@s.whatsapp.net",
-                ...(m.chat ? { remoteJid: `status@broadcast` } : {}),
+                ...(m.chat ? { remoteJid: `0@s.whatsapp.net` } : {}),
             },
             message: {
                 liveLocationMessage: { caption: `LoRDx`, jpegThumbnail: "" },
@@ -74,7 +110,7 @@ module.exports = conn = async (conn, m, msg, store) => {
         const qaudio = {
             key: {
                 participant: "0@s.whatsapp.net",
-                ...(m.chat ? { remoteJid: `status@broadcast` } : {}),
+                ...(m.chat ? { remoteJid: `0@s.whatsapp.net` } : {}),
             },
             message: { audioMessage: { seconds: 99999, ptt: true } },
         };
@@ -95,6 +131,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                     amount: { value: 999, offset: 1000, currencyCode: "USD" },
                 },
             },
+        };
+        const replay = async (teks, urll) => {
+            await conn.sendMessage(m.chat, { text: teks, contextInfo: { externalAdReply: { title: "ChatGPT", body: "", previewType: "PHOTO", thumbnailUrl: "", thumbnail: await Func.getBuffer(urll), sourceUrl: "" } } }, { quoted: m });
         };
 
         //DB
@@ -357,7 +396,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                                     await m.reply(`${'https://chat.whatsapp.com/' + invv}\n------------------------------------------------------\n\nAdmin: @${m.sender.split('@')[0]}\nInviting you to this group.`, {
                                         detectLink: true,
                                         chat: numbersOnly,
-                                        quoted: fkontak
+                                        quoted: qcont
                                     }).catch((err) => m.reply('Error Sending Invitation!'))
                                 } else if (i.status == 403) {
                                     let a = i.content.content[0].attrs
@@ -996,6 +1035,33 @@ module.exports = conn = async (conn, m, msg, store) => {
                     console.log(e);
                     m.reply('_Error!_');
                 }
+            }
+                break;
+            case 'allfake': {
+                const ftext = text || "test";
+                await m.reply(ftext, { quoted: qsticker });
+                baileys.delay(3000)
+                await m.reply(ftext, { quoted: fgc });
+                baileys.delay(3000)
+                await m.reply(ftext, { quoted: qlive });
+                baileys.delay(3000)
+                await m.reply(ftext, { quoted: qcont });
+                baileys.delay(3000)
+                await m.reply(ftext, { quoted: qaudio });
+                baileys.delay(3000)
+                await m.reply(ftext, { quoted: qpayment });
+            }
+                break;
+            case 'gpt': {
+                if (!text) return m.reply("_Enter text!_");
+                const { result } = await API.get("ai.gpt", { q: text });
+                await replay(result, "https://files.catbox.moe/8zkrmz.png");
+            }
+                break;
+            case 'gpt': {
+                if (!text) return m.reply("_Enter text!_");
+                const { result } = await API.get("ai.gemini", { q: text });
+                await replay(result, "https://files.catbox.moe/7mssif.png");
             }
                 break;
             case 'menu': {
