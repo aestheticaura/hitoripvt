@@ -1,3 +1,5 @@
+const { Blob } = require("buffer");
+
 class client {
   constructor(base, routes) {
     this.base = base
@@ -18,15 +20,30 @@ class client {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     return res.json()
   }
+  async post(path, buffer, filename = "file.jpg") {
+    const route = this.resolvePath(path);
+    if (!route) throw new Error(`Route not found: ${path}`);
+    const url = this.base + route;
+    const form = new FormData();
+    form.append("file", new Blob([buffer]), filename);
+    const res = await fetch(url, { method: "POST", body: form });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
 }
 
 const API_BASE = "https://lordx.koyeb.app"
 const API_ROUTES = {
+  ai:{
+    gpt: "/api/ai/gpt",
+    imgen: "/api/ai/imgen"
+  },
   anime: {
     quotes: "/api/anime/quotes",
     info: "/api/anime",
     sfw: "/api/anime/sfw/",
-    waifu: "/api/anime/waifu"
+    waifu: "/api/anime/waifu",
+    find: "/api/anime/find"
   },
   fun: {
     joke: "/api/joke",
@@ -50,7 +67,8 @@ const API_ROUTES = {
     ghibli: "/api/converter/ghibli",
     upscale: "/api/tools/upscale",
     web2zip: "/api/web2zip",
-    removeBg: "/api/tools/rmbg"
+    removeBg: "/api/tools/rmbg",
+    currency: "/api/currency"
   },
   ecom: {
     amazon: "/api/amazon"

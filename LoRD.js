@@ -554,7 +554,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case 'listcmd': {
-                let teks = `*List Hash*\nInfo: *bold* hash is Locked\n${Object.entries(global.db.cmd).map(([key, value], index) => `${index + 1}. ${value.locked ? `*${key}*` : key} : ${value.text}`).join('\n')}`.trim()
+                let teks = `*CMD LIST - HASH*\n\n*INFO:* _Bold hash is Locked_\n${Object.entries(global.db.cmd).map(([key, value], index) => `${index + 1}. ${value.locked ? `*${key}*` : key} : ${value.text}`).join('\n')}`.trim()
                 conn.sendText(m.chat, teks, m);
             }
                 break
@@ -725,9 +725,14 @@ module.exports = conn = async (conn, m, msg, store) => {
                 m.reply(teks1 + readmore + teks2)
             }
                 break
+            case 'photo': {
+                if (!/sticker|webp/.test(quoted.type)) return m.reply("_Reply to a sticker!_");
+                await m.reply({ image: await m.quoted.download() })
+            }
+                break
             case 'getexif': {
-                if (!m.quoted) return m.reply(`_Reply to sticker_`)
-                if (!/sticker|webp/.test(quoted.type)) return m.reply(`_Reply to sticker_`)
+                if (!m.quoted) return m.reply(`_Reply to a sticker_`)
+                if (!/sticker|webp/.test(quoted.type)) return m.reply(`_Reply to a sticker_`)
                 const img = new webp.Image()
                 await img.load(await m.quoted.download())
                 m.reply(util.format(JSON.parse(img.exif.slice(22).toString())))
@@ -992,7 +997,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     m.reply('_Error!_');
                 }
             }
-                break
+                break;
             case 'menu': {
                 let menuMessage = "\t\t\t*INFO*\n\n";
                 menuMessage += `◦ *USER:* ${m.pushName ? m.pushName : ''}\n`;
