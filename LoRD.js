@@ -132,8 +132,8 @@ module.exports = conn = async (conn, m, msg, store) => {
                 },
             },
         };
-        const replay = async (teks, urll) => {
-            await conn.sendMessage(m.chat, { text: teks, contextInfo: { externalAdReply: { title: "ChatGPT", body: "", previewType: "PHOTO", thumbnailUrl: "", thumbnail: await Func.getBuffer(urll), sourceUrl: "" } } }, { quoted: m });
+        const replay = async (teks, namee, urll) => {
+            await conn.sendMessage(m.chat, { text: teks, contextInfo: { externalAdReply: { title: namee, body: "", previewType: "PHOTO", thumbnailUrl: "", thumbnail: await Func.getBuffer(urll), sourceUrl: "" } } }, { quoted: m });
         };
 
         //DB
@@ -1055,13 +1055,13 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'gpt': {
                 if (!text) return m.reply("_Enter text!_");
                 const { result } = await API.get("ai.gpt", { q: text });
-                await replay(result, "https://files.catbox.moe/8zkrmz.png");
+                await replay(result, "ChatGPT", "https://files.catbox.moe/8zkrmz.png");
             }
                 break;
             case 'gemini': {
                 if (!text) return m.reply("_Enter text!_");
                 const { result } = await API.get("ai.gemini", { q: text });
-                await replay(result, "https://files.catbox.moe/7mssif.png");
+                await replay(result, "Gemini", "https://files.catbox.moe/7mssif.png");
             }
                 break;
             case 'menu': {
