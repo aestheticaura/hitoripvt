@@ -995,7 +995,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 let [query, count] = text.split('|')
                 query = query?.trim()
                 count = parseInt(count) || 6
-                const ress = await API.get("media.pinterest", { q: query });
+                const ress = await API.get("media.pin", { q: query });
                 if (Array.isArray(ress.result) && ress.result.length > 1) {
                     const imgc = Math.min(count, ress.result.length, 10)
                     const mixx = ress.result.sort(() => 0.5 - Math.random())
