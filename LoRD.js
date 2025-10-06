@@ -799,6 +799,8 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'nightcore':
             case 'reverse':
             case 'slow': {
+                const ffmpeg = require("@ffmpeg-installer/ffmpeg")
+                const ffmpegPath = ffmpeg.path;
                 try {
                     let set;
                     if (/bass/.test(command)) set = '-af equalizer=f=54:width_type=o:width=2:g=20'
@@ -812,7 +814,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                         m.reply(mess.wait)
                         let media = await conn.downloadAndSaveMediaMessage(qmsg)
                         let ran = `./database/temp/${Func.getRandom('.mp3')}`;
-                        exec(`ffmpeg -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
+                        exec(`${ffmpegPath} -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
                             fs.unlinkSync(media)
                             if (err) return m.reply(err)
                             let buff = fs.readFileSync(ran)
@@ -857,13 +859,13 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case 'tomp3': {
-				if (!/video|audio/.test(mime)) return m.reply(`_Reply to Audio/video_`)
-				m.reply(mess.wait)
-				let media = await quoted.download();
-				let audio = await toAudio(media, 'mp4')
-				await m.reply({ document: audio, mimetype: 'audio/mpeg', fileName: `${text}.mp3`|| "song.mp3"})
-			}
-			    break
+                if (!/video|audio/.test(mime)) return m.reply(`_Reply to Audio/video_`)
+                m.reply(mess.wait)
+                let media = await quoted.download();
+                let audio = await toAudio(media, 'mp4')
+                await m.reply({ document: audio, mimetype: 'audio/mpeg', fileName: `${text}.mp3` || "song.mp3" })
+            }
+                break
             case 'delsession': {
                 if (!isCreator) return;
                 fs.readdir('./session', async function (err, files) {
@@ -1075,7 +1077,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 break;
             case 'find': {
                 if (!m.quoted) return m.reply("_Reply to an audio or image!_");
-                if (/video|audio/.test(mime)) {                    
+                if (/video|audio/.test(mime)) {
                     try {
                         const audioBuffer = await m.quoted.download();
                         const audbuf = await CUT(audioBuffer, '00:00:01', '00:00:15', 'mp4');
