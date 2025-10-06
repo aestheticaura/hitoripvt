@@ -12,6 +12,7 @@ const { createCanvas } = require("canvas");
 const baileys = require('baileys');
 const { GroupUpdate, LoadDataBase } = require('./src/message');
 const Func = require('./lib/function');
+const { toAudio, CUT } = require("./lib/converter");
 
 module.exports = conn = async (conn, m, msg, store) => {
     const botNumber = conn.decodeJid(conn.user.id);
@@ -855,6 +856,14 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break
+            case 'tomp3': {
+				if (!/video|audio/.test(mime)) return m.reply(`_Reply to Audio/video_`)
+				m.reply(mess.wait)
+				let media = await quoted.download();
+				let audio = await toAudio(media, 'mp4')
+				await m.reply({ document: audio, mimetype: 'audio/mpeg', fileName: `${text}.mp3`|| "song.mp3"})
+			}
+			    break
             case 'delsession': {
                 if (!isCreator) return;
                 fs.readdir('./session', async function (err, files) {
@@ -1062,6 +1071,47 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!text) return m.reply("_Enter text!_");
                 const { result } = await API.get("ai.gemini", { q: text });
                 await replay(result, "Gemini", "https://files.catbox.moe/7mssif.png");
+            }
+                break;
+            case 'find': {
+                if (!m.quoted) return m.reply("_Reply to an audio or image!_");
+                if (/video|audio/.test(mime)) {                    
+                    try {
+                        const audioBuffer = await m.quoted.download();
+                        const audbuf = await CUT(audioBuffer, '00:00:01', '00:00:15', 'mp4');
+                        const result = await Func.acrCloud(audbuf);
+                        if (result.status.code === 0 && result.metadata?.music?.length > 0) {
+                            const music = result.metadata.music[0];
+                            const artists = music.artists?.map(artist => artist.name).join(", ");
+                            const album = music.album?.name;
+                            let cappp = `\n*Song Found!*\n\n`;
+                            cappp += `*Title:* ${music.title}\n`;
+                            if (artists) cappp += `*Artist:* ${artists}\n`;
+                            if (album) cappp += `*Album:* ${album}\n`;
+                            await m.reply(cappp);
+                        } else {
+                            await m.reply("_EErr!_");
+                        }
+                    } catch (err) {
+                        console.error(err.response?.data || err.message);
+                        await m.reply("_Error!_");
+                    }
+                } else if (/image/.test(mime)) {
+                    try {
+                        let res = await API.post("anime.find", await m.quoted.download());
+                        const similarity = (res.similarity * 100).toFixed(2);
+                        let capp = `\n*Anime Found!*\n` +
+                            `*${similarity}% match*\n\n` +
+                            `*Name:* ${res.info.name}\n` +
+                            `*Type:* ${res.info.type}\n` +
+                            `*Episodes:* ${res.info.episodes}\n` +
+                            `*Status:* ${res.info.status}\n`;
+                        await m.reply({ image: { url: res.info.image }, caption: capp });
+                    } catch (e) {
+                        console.error(e);
+                        m.reply("_Error!_");
+                    }
+                } else m.reply("_Reply to audio/video or an image!_");
             }
                 break;
             case 'menu': {

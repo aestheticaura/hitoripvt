@@ -41,11 +41,12 @@ ${listv} _spotifydl_
      *TOOLS :-* 
 ${listv} _get (url)_
 ${listv} _toptv_
-${listv} _toqr (text)_
+${listv} _find (audio)_
 ${listv} _readmore text1|text2_
 ${listv} _getexif (sticker)_
 ${listv} _sticker_
 ${listv} _take text1|text2_
+${listv} _toqr (text)_
 ${listv} _bass_
 ${listv} _deep_
 ${listv} _fast_
@@ -57,6 +58,12 @@ ${listv} _gitclone_
 
      *ANIME :-* 
 ${listv} _waifu_
+${listv} _find (image)_
+
+     *AI :-* 
+${listv} _gpt_
+${listv} _gemini_
+${listv} _imgen_
 
      *OWNER :-* 
 ${listv} _ban_
