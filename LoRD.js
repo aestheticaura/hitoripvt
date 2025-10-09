@@ -8,7 +8,6 @@ const axios = require('axios');
 const chalk = require('chalk');
 const webp = require('node-webpmux');
 const { exec } = require('child_process');
-const { createCanvas } = require("canvas");
 const baileys = require('baileys');
 const { GroupUpdate, LoadDataBase } = require('./src/message');
 const Func = require('./lib/function');
@@ -21,20 +20,10 @@ module.exports = conn = async (conn, m, msg, store) => {
     try {
         await LoadDataBase(conn, m);
         await GroupUpdate(conn, m, store);
-        const body = ((m.type === 'conversation') ? m.message.conversation :
-            (m.type == 'imageMessage') ? m.message.imageMessage.caption :
-                (m.type == 'videoMessage') ? m.message.videoMessage.caption :
-                    (m.type == 'extendedTextMessage') ? m.message.extendedTextMessage.text :
-                        (m.type == 'reactionMessage') ? m.message.reactionMessage.text :
-                            (m.type == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId :
-                                (m.type == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId :
-                                    (m.type == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId :
-                                        (m.type == 'interactiveResponseMessage' && m.quoted) ? (m.message.interactiveResponseMessage?.nativeFlowResponseMessage ? JSON.parse(m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id : '') :
-                                            (m.type == 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || '') :
-                                                (m.type == 'editedMessage') ? (m.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || '') :
-                                                    (m.type == 'protocolMessage') ? (m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || '') : '') || '';
+        const body = ((m.type === 'conversation') ? m.message.conversation : (m.type == 'imageMessage') ? m.message.imageMessage.caption : (m.type == 'videoMessage') ? m.message.videoMessage.caption : (m.type == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.type == 'reactionMessage') ? m.message.reactionMessage.text : (m.type == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.type == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.type == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.type == 'interactiveResponseMessage' && m.quoted) ? (m.message.interactiveResponseMessage?.nativeFlowResponseMessage ? JSON.parse(m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id : '') : (m.type == 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || '') : (m.type == 'editedMessage') ? (m.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || '') : (m.type == 'protocolMessage') ? (m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || '') : '') || ''; 
         const budy = (typeof m.text == 'string' ? m.text : '')
         const isCreator = isOwner = [botNumber, ...ownerNumber].filter(v => typeof v === 'string').map(v => v.replace(/[^0-9]/g, '')).includes(m.sender.split('@')[0])
+        const isAllowed = isOwner = [botNumber].filter(v => typeof v === 'string').map(v => v.replace(/[^0-9]/g, '')).includes(m.sender.split('@')[0])
         const cases = db.cases ? db.cases : (db.cases = [...fs.readFileSync('./LoRD.js', 'utf-8').matchAll(/case\s+['"]([^'"]+)['"]/g)].map(match => match[1]));
         const prefix = HANDLER.find(a => body?.startsWith(a)) || '#';
         const isCmd = body.startsWith(prefix)
@@ -113,7 +102,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 participant: "0@s.whatsapp.net",
                 ...(m.chat ? { remoteJid: `0@s.whatsapp.net` } : {}),
             },
-            message: { audioMessage: { seconds: 99999, ptt: true } },
+            message: { audioMessage: { seconds: 777, ptt: true } },
         };
         const qpayment = {
             key: {
@@ -125,11 +114,11 @@ module.exports = conn = async (conn, m, msg, store) => {
             message: {
                 requestPaymentMessage: {
                     currencyCodeIso4217: "USD",
-                    amount1000: 999,
+                    amount1000: 777,
                     requestFrom: "0@s.whatsapp.net",
                     noteMessage: { extendedTextMessage: { text: "LoRD-MD" } },
-                    expiryTimestamp: 999999,
-                    amount: { value: 999, offset: 1000, currencyCode: "USD" },
+                    expiryTimestamp: 99999,
+                    amount: { value: 777, offset: 1000, currencyCode: "USD" },
                 },
             },
         };
@@ -186,27 +175,18 @@ module.exports = conn = async (conn, m, msg, store) => {
             if (!afkTime || afkTime < 0) continue
             let reason = user.afkReason ? `_Reason: ${user.afkReason}_\n` : ''
             let duration = Func.clockString(new Date - afkTime)
-            m.reply(
-                `\n_@${jid.split('@')[0]} is currently AFK_\n` +
-                reason +
-                `_Duration: ${duration}_\n`
-            )
+            m.reply(`\n_@${jid.split('@')[0]} is currently AFK_\n` + reason + `_Duration: ${duration}_\n`);
         }
 
         if (db.users[m.sender].afkTime > -1) {
             let user = db.users[m.sender]
             let duration = Func.clockString(new Date - user.afkTime)
-            m.reply(
-                `\n_Welcome back @${m.sender.split('@')[0]}!_\n` +
-                (user.afkReason ? `_You were AFK for:_ *${user.afkReason}*\n` : '') +
-                `_Duration: ${duration}_\n`
-            )
+            m.reply(`\n_Welcome back @${m.sender.split('@')[0]}!_\n` + (user.afkReason ? `_You were AFK for:_ *${user.afkReason}*\n` : '') + `_Duration: ${duration}_\n`);
             user.afkTime = -1
             user.afkReason = ''
         }
 
         switch (fileSha256 || command) {
-            // Tempat Add Case
             case '19rujxl1e': {
                 console.log('.')
             }
@@ -216,13 +196,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!isCreator) return;
                 let userr = (m.quoted ? m.quoted.sender : null);
                 if (!userr) return m.reply('User?');
-                if (!db.users[userr]) db.users[userr] = {
-                    ban: false
-                };
+                if (!db.users[userr]) db.users[userr] = { ban: false };
                 db.users[userr].ban = true;
-                await m.reply(`@${userr.split('@')[0]} has been *banned* from using bot.`, {
-                    mentions: [userr]
-                });
+                await m.reply(`@${userr.split('@')[0]} has been *banned* from using bot.`, { mentions: [userr] });
             }
                 break;
             case 'unban': {
@@ -230,20 +206,14 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!isCreator) return;
                 let userr = m.mentionedJid[0] || (m.quoted ? m.quoted.sender : null);
                 if (!userr) return m.reply('User?');
-                if (!db.users[userr]) db.users[userr] = {
-                    ban: false
-                };
+                if (!db.users[userr]) db.users[userr] = { ban: false };
                 db.users[userr].ban = false;
-                await m.reply(`@${userr.split('@')[0]} has been *unbanned*.`, {
-                    mentions: [userr]
-                });
+                await m.reply(`@${userr.split('@')[0]} has been *unbanned*.`, { mentions: [userr] });
             }
                 break;
             case 'shutdown': {
                 if (!isCreator) return;
-                m.reply(`*Shutting Down...*`).then(() => {
-                    process.exit(0)
-                })
+                await m.reply(`*Shutting Down...*`).then(() => { process.exit(0) })
             }
                 break
             case 'join': {
@@ -254,18 +224,12 @@ module.exports = conn = async (conn, m, msg, store) => {
                 m.reply(mess.wait)
                 await conn.groupAcceptInvite(result).catch((res) => {
                     switch (res.data) {
-                        case 400:
-                            return m.reply('_Group not found!_');
-                        case 401:
-                            return m.reply('_Bot was kicked from that group!_');
-                        case 409:
-                            return m.reply('_Bot is already in that group!_');
-                        case 410:
-                            return m.reply('_Group URL has been reset!_');
-                        case 500:
-                            return m.reply('_Group is full!_');
-                        default:
-                            return m.reply('_Error!_');
+                        case 400: return m.reply('_Group not found!_');
+                        case 401: return m.reply('_Bot was kicked from that group!_');
+                        case 409: return m.reply('_Bot is already in that group!_');
+                        case 410: return m.reply('_Group URL has been reset!_');
+                        case 500: return m.reply('_Group is full!_');
+                        default: return m.reply('_Error!_');
                     }
                 });
             }
@@ -277,13 +241,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 break
             case 'clearchat': {
                 if (!isCreator) return;
-                await conn.chatModify({
-                    delete: true,
-                    lastMessages: [{
-                        key: m.key,
-                        messageTimestamp: m.timestamp
-                    }]
-                }, m.chat).catch((e) => m.reply('Error!'))
+                await conn.chatModify({ delete: true, lastMessages: [{ key: m.key, messageTimestamp: m.timestamp }]}, m.chat).catch((e) => m.reply('Error!'))
             }
                 break
             case 'getmsgstore':
@@ -321,12 +279,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!onWa.length > 0) return m.reply('_Number not on WhatsApp!_')
                 if (db?.set?.[botNumber]?.owner) {
                     if (db.set[botNumber].owner.find(a => a.id === nmrnya)) return m.reply('_Already owner._')
-                    db.set[botNumber].owner.push({
-                        id: nmrnya,
-                        lock: false
-                    });
+                    db.set[botNumber].owner.push({ id: nmrnya, lock: false });
                 }
-                m.reply('_Success_')
+                m.reply('_Success!_');
             }
                 break
             case 'addcase': {
@@ -337,11 +292,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     const posisi = data.indexOf("case '19rujxl1e':");
                     if (posisi !== -1) {
                         const codeBaru = data.slice(0, posisi) + '\n' + `${text}` + '\n' + data.slice(posisi);
-                        fs.writeFile('LoRD.js', codeBaru, 'utf8', (err) => {
-                            if (err) {
-                                m.reply('_Error while writing the file_');
-                            } else m.reply('_Case added successfully_');
-                        });
+                        fs.writeFile('LoRD.js', codeBaru, 'utf8', (err) => { if (err) { m.reply('_Error while writing the file_') } else m.reply('_Case added successfully_') });
                     } else m.reply('_Error adding case!_');
                 });
             }
@@ -366,11 +317,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     if (err) return;
                     const regex = new RegExp(`case\\s+'${text.toLowerCase()}':[\\s\\S]*?break`, 'g');
                     const modifiedData = data.replace(regex, '');
-                    fs.writeFile('LoRD.js', modifiedData, 'utf8', (err) => {
-                        if (err) {
-                            m.reply('_Error while writing the file_');
-                        } else m.reply('_Case removed successfully_');
-                    });
+                    fs.writeFile('LoRD.js', modifiedData, 'utf8', (err) => { if (err) { m.reply('_Error while writing the file_')} else m.reply('_Case removed successfully_') });
                 });
             }
                 break
@@ -447,14 +394,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'delete':
             case 'del': {
                 if (!m.quoted) return m.reply('_Reply to the message!_')
-                await conn.sendMessage(m.chat, {
-                    delete: {
-                        remoteJid: m.chat,
-                        fromMe: m.isBotAdmin ? false : true,
-                        id: m.quoted.id,
-                        participant: m.quoted.sender
-                    }
-                })
+                await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: m.isBotAdmin ? false : true, id: m.quoted.id, participant: m.quoted.sender } });
             }
                 break
             case 'invite': {
@@ -462,45 +402,33 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!m.isAdmin);
                 if (!m.isBotAdmin);
                 let response = await conn.groupInviteCode(m.chat)
-                await m.reply(`\n_https://chat.whatsapp.com/${response}_\n`, {
-                    detectLink: true
-                })
+                await m.reply(`\n_https://chat.whatsapp.com/${response}_\n`, { detectLink: true });
             }
                 break
             case 'revoke': {
                 if (!m.isGroup) return;
                 if (!m.isAdmin) return;
                 if (!m.isBotAdmin) return;
-                await conn.groupRevokeInvite(m.chat).then((a) => {
-                    m.reply(`_Success!_`)
-                }).catch((err) => m.reply('Error!'))
+                await conn.groupRevokeInvite(m.chat).then((a) => m.reply(`_Success!_`)).catch((err) => m.reply('Error!'));
             }
                 break
             case 'totalcmds': {
-                let total = Func.totalcmd();
-                m.reply(`${total}`);
+                m.reply(Func.totalcmd());
             }
                 break
             case 'ping': {
-                const t1 = Date.now();
-                let fek = await conn.sendMessage(m.chat, {
-                    text: "_Pinging..._"
-                }, {
-                    quoted: m
-                });
-                const latency = Date.now() - t1;
-                await m.edit(`*Pong!*\n${latency}ms`, fek);
+                let t1 = Date.now();
+                let fek = await conn.sendMessage(m.chat, { text: "_Pinging..._" }, { quoted: m });
+                await m.edit(`*Pong!*\n${Date.now() - t1}ms`, fek);
             }
                 break;
             case 'vv': {
-                if (!m.quoted) return m.reply(`_Reply view once message_`)
+                if (!m.quoted) return m.reply(`_Reply to a view once message_`)
                 try {
                     if (m.quoted.msg.viewOnce) {
                         delete m.quoted.chat
                         m.quoted.msg.viewOnce = false
-                        await m.reply({
-                            forward: m.quoted
-                        })
+                        await m.reply({ forward: m.quoted })
                     } else m.reply(`_Reply view once message_`)
                 } catch (e) {
                     m.reply('_Invalid Media!_')
@@ -519,15 +447,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                 let msgs = db.database;
                 let key = text.toLowerCase();
                 if (key in msgs) return m.reply(`_'${text}' is already registered in the message list._`);
-                msgs[key] = {
-                    ...m.quoted
-                };
+                msgs[key] = { ...m.quoted };
                 delete msgs[key].chat;
-                m.reply(
-                    `_Successfully added message as '${text}'_\n` +
-                    `Access with: ${prefix}getmsg ${text}\n` +
-                    `View list with: ${prefix}listmsg`
-                );
+                m.reply(`_Successfully added message as '${text}'_\nAccess with: ${prefix}getmsg ${text}\nView list with: ${prefix}listmsg`);
             }
                 break;
             case 'delmsg': {
@@ -544,12 +466,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'getmsg': {
-                if (!text) {
-                    return m.reply(
-                        `_Example: ${prefix + command} name_\n\n` +
-                        `View the message list with: ${prefix}listmsg`
-                    );
-                }
+                if (!text) return m.reply(`_Example: ${prefix + command} name_\n\nView the message list with: ${prefix}listmsg`);
                 let msgs = db.database;
                 let key = text.toLowerCase();
                 if (!(key in msgs)) return m.reply(`_'${text}' is not in the message list._`);
@@ -557,10 +474,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'listmsg': {
-                let entries = Object.entries(db.database).map(([name, msg]) => ({
-                    name,
-                    type: getContentType(msg)?.replace(/Message/i, '') || 'Unknown'
-                }));
+                let entries = Object.entries(db.database).map(([name, msg]) => ({ name, type: getContentType(msg)?.replace(/Message/i, '') || 'Unknown' }));
                 if (entries.length === 0) return m.reply('_The message list is empty._');
                 let teks = '「 MESSAGE LIST 」\n\n';
                 for (let i of entries) {
@@ -575,12 +489,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!text) return m.reply(`_Example : ${prefix + command} CMD Name_`)
                 let hash = m.quoted.fileSha256.toString('base64')
                 if (global.db.cmd[hash] && global.db.cmd[hash].locked) return m.reply('_You have no permission to change this sticker command!_')
-                global.db.cmd[hash] = {
-                    creator: m.sender,
-                    locked: false,
-                    at: +new Date,
-                    text
-                }
+                global.db.cmd[hash] = { creator: m.sender, locked: false, at: +new Date, text }
                 m.reply('_Done!_')
             }
                 break
@@ -637,10 +546,8 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!m.isGroup) return;
                 if (!m.isAdmin) return;
                 if (!m.isBotAdmin) return;
-
                 if (!db.groups[m.chat]) db.groups[m.chat] = {};
                 if (!db.groups[m.chat].warn) db.groups[m.chat].warn = {};
-
                 if (text || m.quoted) {
                     const target = text ? text.replace(/\D/g, '') + '@s.whatsapp.net' : m.quoted?.sender;
                     if (db.groups[m.chat].warn[target]) {
@@ -690,45 +597,45 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break
-            case "get":
-                {
-                    if (!text) return m.reply(`Enter url!`);
-                    try {
-                        const gt = await axios.get(text, {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                Referer: "https://www.google.com/",
-                                "Referrer-Policy": "strict-origin-when-cross-origin",
-                                "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-                            }, responseType: "arraybuffer"
-                        });
-                        const contentType = gt.headers["content-type"];
-                        if (/json/i.test(contentType)) {
-                            const jsonData = JSON.parse(Buffer.from(gt.data, "binary").toString("utf8"));
-                            return m.reply(JSON.stringify(jsonData, null, 2));
-                        } else if (/text/i.test(contentType)) {
-                            const textData = Buffer.from(gt.data, "binary").toString("utf8");
-                            return m.reply(textData);
-                        } else if (text.includes("webp")) {
-                            return conn.sendMessage(m.chat, { sticker: { url: text } }, { quoted: m });
-                        } else if (/image/i.test(contentType)) {
-                            return m.reply({ image: { url: text } }, { quoted: m });
-                        } else if (/video/i.test(contentType)) {
-                            return m.reply({ video: { url: text } }, { quoted: m });
-                        } else if (/audio/i.test(contentType) || text.includes(".mp3")) {
-                            return m.reply({ audio: { url: text } }, { quoted: m });
-                        } else if (/application\/zip/i.test(contentType) || /application\/x-zip-compressed/i.test(contentType)) {
-                            return m.reply({ document: { url: text }, fileName: ``, mimetype: text }, { quoted: m });
-                        } else if (/application\/pdf/i.test(contentType)) {
-                            return m.reply({ document: { url: text }, fileName: ``, mimetype: text }, { quoted: m });
-                        } else {
-                            return m.reply(`\nMIME : ${contentType}\n\n${gt.data}\n`);
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        m.reply("_Error!_");
+            case "get": {
+                if (!text) return m.reply(`Enter url!`);
+                try {
+                    const gt = await axios.get(text, {
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            Referer: "https://www.google.com/",
+                            "Referrer-Policy": "strict-origin-when-cross-origin",
+                            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+                        },
+                        responseType: "arraybuffer"
+                    });
+                    const contentType = gt.headers["content-type"];
+                    if (/json/i.test(contentType)) {
+                        const jsonData = JSON.parse(Buffer.from(gt.data, "binary").toString("utf8"));
+                        return m.reply(JSON.stringify(jsonData, null, 2));
+                    } else if (/text/i.test(contentType)) {
+                        const textData = Buffer.from(gt.data, "binary").toString("utf8");
+                        return m.reply(textData);
+                    } else if (text.includes("webp")) {
+                        return conn.sendMessage(m.chat, { sticker: { url: text } }, { quoted: m });
+                    } else if (/image/i.test(contentType)) {
+                        return m.reply({ image: { url: text } }, { quoted: m });
+                    } else if (/video/i.test(contentType)) {
+                        return m.reply({ video: { url: text } }, { quoted: m });
+                    } else if (/audio/i.test(contentType) || text.includes(".mp3")) {
+                        return m.reply({ audio: { url: text } }, { quoted: m });
+                    } else if (/application\/zip/i.test(contentType) || /application\/x-zip-compressed/i.test(contentType)) {
+                        return m.reply({ document: { url: text }, fileName: ``, mimetype: text }, { quoted: m });
+                    } else if (/application\/pdf/i.test(contentType)) {
+                        return m.reply({ document: { url: text }, fileName: ``, mimetype: text }, { quoted: m });
+                    } else {
+                        return m.reply(`\nMIME : ${contentType}\n\n${gt.data}\n`);
                     }
+                } catch (error) {
+                    console.error(error);
+                    m.reply("_Error!_");
                 }
+            }
                 break
             case 'p': {
                 if (!isCreator) return;
@@ -750,7 +657,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     const anu = await quoted.download()
                     const message = await baileys.generateWAMessageContent({ video: anu }, { upload: conn.waUploadToServer })
                     await conn.relayMessage(m.chat, { ptvMessage: message.videoMessage }, {})
-                } else m.reply('_Reply to the video you want to convert to PTV Message!_')
+                } else m.reply('_Reply to the video that you want to convert!_')
             }
                 break
             case 'toqr': {
@@ -847,9 +754,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     let res = await fetch(`http://registry.npmjs.com/-/v1/search?text=${text}`)
                     let { objects } = await res.json()
                     if (!objects.length) return m.reply('_Not found_')
-                    let txt = objects.map(({
-                        package: pkg
-                    }) => {
+                    let txt = objects.map(({ package: pkg }) => {
                         return `*${pkg.name}* (v${pkg.version})\n_${pkg.links.npm}_\n_${pkg.description}_`
                     }).join`\n\n`
                     m.reply(txt)
@@ -907,10 +812,10 @@ module.exports = conn = async (conn, m, msg, store) => {
                                 }
                             })
                         );
-                        const cleanAlbum = album.filter(Boolean);
-                        return await conn.sendAlbum(m.chat, { album: cleanAlbum });
+                        const aalbum = album.filter(Boolean);
+                        return await conn.sendAlbum(m.chat, { album: aalbum });
                     } else {
-                        return await conn.sendFile(m.chat, result.url[0] || result.url, "", m);
+                        return await conn.sendFile(m.chat, result.url[0] || result.url || res.url, "", m);
                     }
                 } catch (e) {
                     console.error(e);
@@ -930,13 +835,8 @@ module.exports = conn = async (conn, m, msg, store) => {
                 const thumb = Buffer.from((await axios.get(thumbnail, { responseType: "arraybuffer" })).data);
                 const msgg = {
                     document: { url: result.url }, mimetype: "audio/mp3", fileName: `${title}.mp3`, contextInfo: {
-                        externalAdReply: {
-                            title: ``,
-                            body: `${Func.frmtView(views)} views • ${ago}`,
-                            sourceUrl: "", mediaUrl: "", mediaType: 1,
-                            renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: "",
-                        },
-                    },
+                        externalAdReply: { title: ``, body: `${Func.frmtView(views)} views • ${ago}`, sourceUrl: "", mediaUrl: "", mediaType: 1, renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: "" }
+                    }
                 };
                 await conn.sendMessage(m.chat, msgg);
             }
@@ -959,8 +859,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 try {
                     const { result } = await API.get("media.spotify", { q: text });
                     if (!result || result.length === 0) return m.reply('_No results found!_');
-                    const cap = result.map((song, index) =>
-                        `──────────────────\n*No:* ${index + 1}\n*Title:* ${song.title}\n*Artist:* ${song.artist}\n*Duration:* ${song.duration}\n*Url:* ${song.url}`).join('\n\n');
+                    const cap = result.map((song, index) => `──────────────────\n*No:* ${index + 1}\n*Title:* ${song.title}\n*Artist:* ${song.artist}\n*Duration:* ${song.duration}\n*Url:* ${song.url}`).join('\n\n');
                     const thumb = Buffer.from((await axios.get(result[0].thumbnail, { responseType: "arraybuffer" })).data);
                     return await m.reply({ image: thumb, caption: cap.trim() });
                 } catch (e) {
@@ -977,12 +876,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     const thumb = Buffer.from((await axios.get(result.thumb, { responseType: "arraybuffer" })).data);
                     const msgg = {
                         document: { url: result.url }, mimetype: "audio/mp3", fileName: `${result.title}.mp3`, contextInfo: {
-                            externalAdReply: {
-                                title: ``,
-                                body: `${result.artist} • ${result.duration}`,
-                                sourceUrl: "", mediaUrl: "", mediaType: 1,
-                                renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: "",
-                            },
+                            externalAdReply: { title: ``, body: `${result.artist} • ${result.duration}`, sourceUrl: "", mediaUrl: "", mediaType: 1, renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: "" },
                         },
                     };
                     await conn.sendMessage(m.chat, msgg);
@@ -1008,19 +902,14 @@ module.exports = conn = async (conn, m, msg, store) => {
                     m.reply('_Error!_')
                 }
             }
-                break
+                break;
             case 'lyrics': {
                 if (!text) return m.reply(`\n_Enter query!_\n`);
                 try {
                     const { result } = await API.get("media.lyrics", { q: text });
                     if (!Array.isArray(result) || result.length === 0) return m.reply("_Not Found!_");
                     let three = result.slice(0, 3);
-                    let buttons = three.map((song, i) => ({
-                        buttonId: `${prefix}getlyrics ${song.url}`,
-                        buttonText: { displayText: `${i + 1}. ${song.title} - (${Func.minToSec(song.duration)})` },
-                        type: 1
-                    }));
-
+                    let buttons = three.map((song, i) => ({ buttonId: `${prefix}getlyrics ${song.url}`, buttonText: { displayText: `${i + 1}. ${song.title} - (${Func.minToSec(song.duration)})` }, type: 1 }));
                     let caption = `\n*Matching Results for:* ${text}\n`
                     await conn.sendButton(m.chat, { text: caption, footer: "LoRDx", buttons }, { quoted: m });
                 } catch (e) {
@@ -1033,15 +922,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 if (!text) return;
                 try {
                     const { result } = await Func.fetchJson(text);
-                    await conn.sendMessage(m.chat, {
-                        text: result.lyrics,
-                        contextInfo: {
-                            externalAdReply: {
-                                title: `${result.title} - ${result.artist}`,
-                                mediaType: 1,
-                            },
-                        },
-                    });
+                    await conn.sendMessage(m.chat, { text: result.lyrics, contextInfo: { externalAdReply: { title: `${result.title} - ${result.artist}`, mediaType: 1 } } });
                 } catch (e) {
                     console.log(e);
                     m.reply('_Error!_');
@@ -1102,12 +983,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     try {
                         let res = await API.post("anime.find", await m.quoted.download());
                         const similarity = (res.similarity * 100).toFixed(2);
-                        let capp = `\n*Anime Found!*\n` +
-                            `*${similarity}% match*\n\n` +
-                            `*Name:* ${res.info.name}\n` +
-                            `*Type:* ${res.info.type}\n` +
-                            `*Episodes:* ${res.info.episodes}\n` +
-                            `*Status:* ${res.info.status}\n`;
+                        let capp = `\n*Anime Found!*\n*${similarity}% match*\n\n*Name:* ${res.info.name}\n*Type:* ${res.info.type}\n*Episodes:* ${res.info.episodes}\n*Status:* ${res.info.status}\n`;
                         await m.reply({ image: { url: res.info.image }, caption: capp });
                     } catch (e) {
                         console.error(e);
@@ -1127,51 +1003,18 @@ module.exports = conn = async (conn, m, msg, store) => {
                 menuMessage += `◦ *HOSTNAME:* ${require("os").hostname()}\n\n`;
                 menuMessage += `${readmore}`;
                 menuMessage += require("./src/menu");
-
-                const imageBuffer = await createN(`HI ${m.pushName}!`);
+                const imageBuffer = await Func.createN(`HI ${m.pushName}!`);
                 const buttonMessage = {
-                    image: imageBuffer,
-                    caption: menuMessage,
-                    footer: "LoRDx",
-                    headerType: 4,
-                    contextInfo: {
-                        externalAdReply: {
-                            title: "",
-                            body: "",
-                            sourceUrl: "",
-                            mediaUrl: "",
-                            mediaType: 1,
-                            showAdAttribution: true,
-                            renderLargerThumbnail: true,
-                            thumbnailUrl: "https://drive.google.com/uc?id=191CL6-SG793yj9hgJAIQeH6xFvldYjMC&export=download",
-                        },
+                    image: imageBuffer, caption: menuMessage, footer: "LoRDx", headerType: 4, contextInfo: {
+                        externalAdReply: { title: "", body: "", sourceUrl: "", mediaUrl: "", mediaType: 1, showAdAttribution: true, renderLargerThumbnail: true, thumbnailUrl: "https://drive.google.com/uc?id=191CL6-SG793yj9hgJAIQeH6xFvldYjMC&export=download" }
                     },
                 };
-
-                await conn.sendMessage(m.chat, buttonMessage, {
-                    mentions: [m.sender]
-                });
-                async function createN(text) {
-                    const W = 2048;
-                    const H = 282;
-                    const canvas = createCanvas(W, H);
-                    const ctx = canvas.getContext("2d");
-                    ctx.fillStyle = "black";
-                    ctx.fillRect(0, 0, W, H);
-                    ctx.font = "64px Sans";
-                    ctx.fillStyle = "white";
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.shadowColor = "rgba(255,255,255,0.8)";
-                    ctx.shadowBlur = 8;
-                    ctx.fillText(text, W / 2, H / 2);
-                    return canvas.toBuffer("image/jpeg");
-                }
+                await conn.sendMessage(m.chat, buttonMessage, { mentions: [m.sender] });
             }
                 break;
             default:
                 if (budy.startsWith('<e')) {
-                    if (!isCreator) return
+                    if (!isAllowed) return
                     try {
                         let evaled = await eval(`(async () => { return ${budy.slice(2)} })()`)
                         if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
@@ -1181,7 +1024,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     }
                 }
                 if (budy.startsWith('e>')) {
-                    if (!isCreator) return
+                    if (!isAllowed) return
                     try {
                         let evaled = await eval(`(async () => { ${budy.slice(2)} })()`)
                         if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
@@ -1191,7 +1034,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     }
                 }
                 if (budy.startsWith('e$')) {
-                    if (!isCreator) return
+                    if (!isAllowed) return
                     if (!text) return
                     exec(budy.slice(2), (err, stdout) => {
                         if (err) return m.reply(`${err}`)
@@ -1205,6 +1048,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     await conn.relayMessage(m.chat, db.database[key], {});
                 }
         }
+
     } catch (e) {
         console.log(e);
         if (e?.message?.includes('No sessions')) return;
@@ -1216,10 +1060,8 @@ module.exports = conn = async (conn, m, msg, store) => {
         errorCache[errorKey].push(now);
         m.reply('\nError: ' + (e?.name || e?.code || e?.output?.statusCode || e?.status || 'Unknown') + '\n')
         return conn.sendFromOwner(ownerNumber, `\nVersion : *${require('./package.json').version}*\n\n*Error:*\n\n` + util.format(e), m, {
-            contextInfo: {
-                isForwarded: true
-            }
-        })
+            contextInfo: { isForwarded: true }
+        });
     }
 }
 
