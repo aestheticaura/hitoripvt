@@ -27,9 +27,9 @@ module.exports = conn = async (conn, m, msg, store) => {
         const cases = db.cases ? db.cases : (db.cases = [...fs.readFileSync('./LoRD.js', 'utf-8').matchAll(/case\s+['"]([^'"]+)['"]/g)].map(match => match[1]));
         const prefix = HANDLER.find(a => body?.startsWith(a));
         const isCmd = body.startsWith(prefix)
+        const command = isCmd ? body.slice(prefix.length).trim().split(/ +/).shift().toLowerCase() : ''
         const args = body.trim().split(/ +/).slice(1)
         const quoted = m.quoted ? m.quoted : m
-        const command = isCreator ? body.replace(prefix, '').trim().split(/ +/).shift().toLowerCase() : isCmd ? body.replace(prefix, '').trim().split(/ +/).shift().toLowerCase() : ''
         const text = q = args.join(' ')
         const mime = (quoted.msg || quoted).mimetype || ''
         const qmsg = (quoted.msg || quoted)
