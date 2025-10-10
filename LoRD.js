@@ -718,7 +718,6 @@ module.exports = conn = async (conn, m, msg, store) => {
                     if (/slow/.test(command)) set = '-filter:a "atempo=0.7,asetrate=44100"'
                     if (/smooth/.test(command)) set = '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=120\'"'
                     if (/audio/.test(mime)) {
-                        m.reply(mess.wait)
                         let media = await conn.downloadAndSaveMediaMessage(qmsg)
                         let ran = `./database/temp/${Func.getRandom('.mp3')}`;
                         exec(`${ffmpegPath} -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
@@ -733,6 +732,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                         });
                     } else m.reply(`_Reply to a audio with *${prefix + command}*_`)
                 } catch (e) {
+                    console.log(e)
                     m.reply('_Error!_')
                 }
             }
@@ -774,10 +774,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'delsession': {
                 if (!isCreator) return;
                 fs.readdir('./session', async function (err, files) {
-                    if (err) {
-                        console.error(err);
-                        return m.reply('Unable to scan directory: ' + err);
-                    }
+                    if (err) return m.reply(err);
                     let filteredArray = await files.filter(item => ['session-', 'pre-key', 'sender-key', 'app-state'].some(ext => item.startsWith(ext)));
                     let teks = `Detected ${filteredArray.length} files\n\n`
                     if (filteredArray.length == 0) return m.reply(teks);
