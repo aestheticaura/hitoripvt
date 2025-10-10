@@ -20,12 +20,12 @@ module.exports = conn = async (conn, m, msg, store) => {
     try {
         await LoadDataBase(conn, m);
         await GroupUpdate(conn, m, store);
-        const body = ((m.type === 'conversation') ? m.message.conversation : (m.type == 'imageMessage') ? m.message.imageMessage.caption : (m.type == 'videoMessage') ? m.message.videoMessage.caption : (m.type == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.type == 'reactionMessage') ? m.message.reactionMessage.text : (m.type == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.type == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.type == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.type == 'interactiveResponseMessage' && m.quoted) ? (m.message.interactiveResponseMessage?.nativeFlowResponseMessage ? JSON.parse(m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id : '') : (m.type == 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || '') : (m.type == 'editedMessage') ? (m.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || '') : (m.type == 'protocolMessage') ? (m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || '') : '') || ''; 
+        const body = ((m.type === 'conversation') ? m.message.conversation : (m.type == 'imageMessage') ? m.message.imageMessage.caption : (m.type == 'videoMessage') ? m.message.videoMessage.caption : (m.type == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.type == 'reactionMessage') ? m.message.reactionMessage.text : (m.type == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.type == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.type == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.type == 'interactiveResponseMessage' && m.quoted) ? (m.message.interactiveResponseMessage?.nativeFlowResponseMessage ? JSON.parse(m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id : '') : (m.type == 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || '') : (m.type == 'editedMessage') ? (m.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || '') : (m.type == 'protocolMessage') ? (m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || '') : '') || '';
         const budy = (typeof m.text == 'string' ? m.text : '')
         const isCreator = isOwner = [botNumber, ...ownerNumber].filter(v => typeof v === 'string').map(v => v.replace(/[^0-9]/g, '')).includes(m.sender.split('@')[0])
         const isAllowed = isOwner = [botNumber].filter(v => typeof v === 'string').map(v => v.replace(/[^0-9]/g, '')).includes(m.sender.split('@')[0])
         const cases = db.cases ? db.cases : (db.cases = [...fs.readFileSync('./LoRD.js', 'utf-8').matchAll(/case\s+['"]([^'"]+)['"]/g)].map(match => match[1]));
-        const prefix = HANDLER.find(a => body?.startsWith(a)) || '#';
+        const prefix = HANDLER.find(a => body?.startsWith(a));
         const isCmd = body.startsWith(prefix)
         const args = body.trim().split(/ +/).slice(1)
         const quoted = m.quoted ? m.quoted : m
@@ -241,7 +241,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 break
             case 'clearchat': {
                 if (!isCreator) return;
-                await conn.chatModify({ delete: true, lastMessages: [{ key: m.key, messageTimestamp: m.timestamp }]}, m.chat).catch((e) => m.reply('Error!'))
+                await conn.chatModify({ delete: true, lastMessages: [{ key: m.key, messageTimestamp: m.timestamp }] }, m.chat).catch((e) => m.reply('Error!'))
             }
                 break
             case 'getmsgstore':
@@ -317,7 +317,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     if (err) return;
                     const regex = new RegExp(`case\\s+'${text.toLowerCase()}':[\\s\\S]*?break`, 'g');
                     const modifiedData = data.replace(regex, '');
-                    fs.writeFile('LoRD.js', modifiedData, 'utf8', (err) => { if (err) { m.reply('_Error while writing the file_')} else m.reply('_Case removed successfully_') });
+                    fs.writeFile('LoRD.js', modifiedData, 'utf8', (err) => { if (err) { m.reply('_Error while writing the file_') } else m.reply('_Case removed successfully_') });
                 });
             }
                 break
@@ -706,8 +706,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             case 'nightcore':
             case 'reverse':
             case 'slow': {
-                const ffmpeg = require("@ffmpeg-installer/ffmpeg")
-                const ffmpegPath = ffmpeg.path;
+                const ffpth = require("@ffmpeg-installer/ffmpeg").path;
                 try {
                     let set;
                     if (/bass/.test(command)) set = '-af equalizer=f=54:width_type=o:width=2:g=20'
@@ -720,7 +719,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     if (/audio/.test(mime)) {
                         let media = await conn.downloadAndSaveMediaMessage(qmsg)
                         let ran = `./database/temp/${Func.getRandom('.mp3')}`;
-                        exec(`${ffmpegPath} -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
+                        exec(`${ffpth} -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
                             fs.unlinkSync(media)
                             if (err) return m.reply(err)
                             let buff = fs.readFileSync(ran)
@@ -989,6 +988,18 @@ module.exports = conn = async (conn, m, msg, store) => {
                 } else m.reply("_Reply to audio/video or an image!_");
             }
                 break;
+            case 'url': {
+                try {
+                    const buff = await m.quoted.download();
+                    const fName = m.quoted.message?.fileName || `${Date.now()}`;
+                    const res = await Func.gdrive(buff, fName);
+                    await m.reply(`\n*URL:* ${res.url}\n*Size:* ${res.size}\n`);
+                } catch (e) {
+                    m.reply('_Error!_')
+                }
+            }
+                break;
+
             case 'menu': {
                 let menuMessage = "\t\t\t*INFO*\n\n";
                 menuMessage += `◦ *USER:* ${m.pushName ? m.pushName : ''}\n`;
