@@ -27,7 +27,7 @@ module.exports = conn = async (conn, m, msg, store) => {
         const cases = db.cases ? db.cases : (db.cases = [...fs.readFileSync('./LoRD.js', 'utf-8').matchAll(/case\s+['"]([^'"]+)['"]/g)].map(match => match[1]));
         const prefix = HANDLER.find(a => body?.startsWith(a));
         const isCmd = body.startsWith(prefix)
-        const command = isCmd ? body.slice(prefix.length).trim().split(/ +/).shift().toLowerCase() : ''
+        const command = isCmd ? body.replace(prefix, '').trim().split(/ +/).shift().toLowerCase() : ''
         const args = body.trim().split(/ +/).slice(1)
         const quoted = m.quoted ? m.quoted : m
         const text = q = args.join(' ')
@@ -764,10 +764,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                 break
             case 'tomp3': {
                 if (!/video|audio/.test(mime)) return m.reply(`_Reply to Audio/video_`)
-                m.reply(mess.wait)
                 let media = await quoted.download();
                 let audio = await toAudio(media, 'mp4')
-                await m.reply({ document: audio, mimetype: 'audio/mpeg', fileName: `${text}.mp3` || "song.mp3" })
+                await m.reply({ audio: audio, mimetype: 'audio/mpeg', fileName: `${text}.mp3` || "song.mp3" })
             }
                 break
             case 'delsession': {
@@ -999,7 +998,6 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break;
-
             case 'menu': {
                 let menuMessage = "\t\t\t*INFO*\n\n";
                 menuMessage += `◦ *USER:* ${m.pushName ? m.pushName : ''}\n`;
