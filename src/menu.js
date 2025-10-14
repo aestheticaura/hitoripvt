@@ -29,6 +29,7 @@ ${listv} _ytsearch_
 ${listv} _spotify_
 ${listv} _pinterest_
 ${listv} _lyrics_
+${listv} _lens_
 
      *DOWNLOAD :-* 
 ${listv} _yta_
@@ -55,6 +56,8 @@ ${listv} _reverse_
 ${listv} _slow_
 ${listv} _tinyurl_
 ${listv} _gitclone_
+${listv} _rmbg_
+${listv} _url_
 
      *ANIME :-* 
 ${listv} _waifu_

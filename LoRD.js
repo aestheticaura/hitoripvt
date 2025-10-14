@@ -988,6 +988,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'url': {
+                if (!m.quoted) return;
                 try {
                     const buff = await m.quoted.download();
                     const fName = m.quoted.message?.fileName || `${Date.now()}`;
@@ -996,6 +997,39 @@ module.exports = conn = async (conn, m, msg, store) => {
                 } catch (e) {
                     m.reply('_Error!_')
                 }
+            }
+                break;
+            case 'rmbg': {
+                if (/image/.test(mime)) {
+                    try {
+                        const buff = await m.quoted.download();
+                        await m.reply({ image: await Func.rmbg(buff) });
+                    } catch (e) {
+                        m.reply('_Error!_')
+                    }
+                } else m.reply("_Reply to an image!_")
+            }
+                break;
+            case 'lens':
+            case 'source': {
+                if (/image/.test(mime)) {
+                    try {
+                        const buff = await m.quoted.download();
+                        const { url } = await Func.gdrive(buff, `${Date.now()}`);
+                        const res = await API.get("tools.gLens", { url });
+                        await conn.sendCarousel(m.chat, "\n*result:*", "LoRDx",
+                            res.result.map(res => ({
+                                url: res.image,
+                                body: `\n*${res.no}. ${res.title}*\n\n*${res.link}*`,
+                                footer: res.source,
+                                buttons: []
+                            }))
+                        );
+                    } catch (e) {
+                        console.log(e)
+                        m.reply('_Error!_')
+                    }
+                } else m.reply("_Reply to an image!_")
             }
                 break;
             case 'menu': {

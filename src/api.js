@@ -37,6 +37,7 @@ const API_ROUTES = {
   ai:{
     gpt: "/api/ai/gpt",
     gemini: "/api/ai/gemini",
+    deepseek: "/api/ai/deepseek",
     imgen: "/api/ai/imgen"
   },
   anime: {
@@ -57,7 +58,8 @@ const API_ROUTES = {
     pin: "/api/pinterest",
     yt: "/api/ytdl",
     ig: "/api/igdl",
-    story: "/api/story"
+    story: "/api/story",
+    x: "/api/x"
   },
   tools: {
     tgs: "/api/tg/sticker",
