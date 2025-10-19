@@ -924,21 +924,6 @@ module.exports = conn = async (conn, m, msg, store) => {
                 }
             }
                 break;
-            case 'allfake': {
-                const ftext = text || "test";
-                await m.reply(ftext, { quoted: qsticker });
-                baileys.delay(3000)
-                await m.reply(ftext, { quoted: fgc });
-                baileys.delay(3000)
-                await m.reply(ftext, { quoted: qlive });
-                baileys.delay(3000)
-                await m.reply(ftext, { quoted: qcont });
-                baileys.delay(3000)
-                await m.reply(ftext, { quoted: qaudio });
-                baileys.delay(3000)
-                await m.reply(ftext, { quoted: qpayment });
-            }
-                break;
             case 'gpt': {
                 if (!text) return m.reply("_Enter text!_");
                 const { result } = await API.get("ai.gpt", { q: text });
