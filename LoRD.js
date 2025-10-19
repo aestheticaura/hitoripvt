@@ -1017,7 +1017,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                         const buff = await m.quoted.download();
                         const { url } = await Func.gdrive(buff, `${Date.now()}`);
                         const res = await API.get("tools.gLens", { url });
-                        await conn.sendCarousel(m.chat, "\n*result:*", "LoRDx",
+                        await conn.sendCarousel(m.chat, "ㅤ", "*results:*",
                             res.result.map(res => ({
                                 url: res.image,
                                 body: `\n*${res.no}. ${res.title}*\n\n*${res.link}*`,
