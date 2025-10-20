@@ -441,64 +441,7 @@ async function Solving(conn, store) {
 		}
 		return medias;
 	}
-	conn.sendList = async (jid, content = {}, options = {}) => {
-		const { text, caption, footer = '', title, subtitle, ai, contextInfo = {}, buttons = [], mentions = [], ...media } = content;
-		const msg = await generateWAMessageFromContent(jid, {
-			viewOnceMessage: {
-				message: {
-					messageContextInfo: {
-						deviceListMetadata: {},
-						deviceListMetadataVersion: 2,
-					},
-					interactiveMessage: proto.Message.InteractiveMessage.create({
-						body: proto.Message.InteractiveMessage.Body.create({ text: text || caption || '' }),
-						footer: proto.Message.InteractiveMessage.Footer.create({ text: footer }),
-						header: proto.Message.InteractiveMessage.Header.create({
-							title,
-							subtitle,
-							hasMediaAttachment: Object.keys(media).length > 0,
-							...(media && typeof media === 'object' && Object.keys(media).length > 0 ? await generateWAMessageContent(media, {
-								upload: conn.waUploadToServer
-							}) : {})
-						}),
-						nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-							buttons: buttons.map(a => {
-								return {
-									name: a.name,
-									buttonParamsJson: JSON.stringify(a.buttonParamsJson ? (typeof a.buttonParamsJson === 'string' ? JSON.parse(a.buttonParamsJson) : a.buttonParamsJson) : '')
-								}
-							})
-						}),
-						contextInfo: {
-							...contextInfo,
-							...options.contextInfo,
-							mentionedJid: options.mentions || mentions,
-							...(options.quoted ? {
-								stanzaId: options.quoted.key.id,
-								remoteJid: options.quoted.key.remoteJid,
-								participant: options.quoted.key.participant || options.quoted.key.remoteJid,
-								fromMe: options.quoted.key.fromMe,
-								quotedMessage: options.quoted.message
-							} : {})
-						}
-					})
-				}
-			}
-		}, {});
-		const hasil = await conn.relayMessage(msg.key.remoteJid, msg.message, {
-			messageId: msg.key.id,
-			additionalNodes: [{
-				tag: 'biz',
-				attrs: {},
-				content: [{
-					tag: 'interactive',
-					attrs: { type: 'native_flow', v: '1' },
-					content: [{ tag: 'native_flow', attrs: { name: 'quick_reply' } }]
-				}]
-			}, ...(ai ? [{ attrs: { biz_bot: '1' }, tag: 'bot' }] : [])]
-		})
-		return hasil
-	}
+
 	conn.sendButton = async (jid, content = {}, options = {}) => {
 		const { text, caption, footer = '', headerType = 1, ai, contextInfo = {}, buttons = [], mentions = [], ...media } = content;
 		const msg = await generateWAMessageFromContent(jid, {
@@ -553,8 +496,19 @@ async function Solving(conn, store) {
 	}
 	conn.sendCarousel = async (jid, body = '', footer = '', cards = [], options = {}) => {
 		async function getImageMsg(url) {
-			const { imageMessage } = await generateWAMessageContent({ image: { url } }, { upload: conn.waUploadToServer });
-			return imageMessage;
+			try {
+				const { imageMessage } = await generateWAMessageContent(
+					{ image: { url } },
+					{ upload: conn.waUploadToServer }
+				);
+				return imageMessage;
+			} catch (err) {
+				const { imageMessage } = await generateWAMessageContent(
+					{ image: { url: "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg" } },
+					{ upload: conn.waUploadToServer }
+				);
+				return imageMessage;
+			}
 		}
 		const cardPromises = cards.map(async (a) => {
 			const imageMessage = await getImageMsg(a.url);

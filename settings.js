@@ -6,7 +6,7 @@ global.author = '𝐿𝑜𝑟𝑑-𝑜𝑓𝑓𝑖𝑐𝑖𝑎𝑙'
 global.botname = '𝐋𝐨𝐑𝐃-𝐌𝐃'
 global.packname = '𝐋𝐨𝐑𝐃-𝐌𝐃'
 global.thumb = require("fs").readFileSync('./src/lord.jpg')
-global.HANDLER = ['-']
+global.HANDLER = ['!']
 global.API = require("./src/api");
 
 global.listv = ['*•*']

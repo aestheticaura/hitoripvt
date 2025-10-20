@@ -9,6 +9,7 @@ const chalk = require('chalk');
 const webp = require('node-webpmux');
 const { exec } = require('child_process');
 const baileys = require('baileys');
+const yts = require("yt-search");
 const { GroupUpdate, LoadDataBase } = require('./src/message');
 const Func = require('./lib/function');
 const { toAudio, CUT } = require("./lib/converter");
@@ -125,6 +126,17 @@ module.exports = conn = async (conn, m, msg, store) => {
         const replay = async (teks, namee, urll) => {
             await conn.sendMessage(m.chat, { text: teks, contextInfo: { externalAdReply: { title: namee, body: "", previewType: "PHOTO", thumbnailUrl: "", thumbnail: await Func.getBuffer(urll), sourceUrl: "" } } }, { quoted: m });
         };
+
+        async function sendText(text, text1) {
+            const msg = await baileys.generateWAMessageFromContent(m.chat, {
+                interactiveMessage: baileys.proto.Message.InteractiveMessage.create({
+                    body: baileys.proto.Message.InteractiveMessage.Body.create({ text: text1 || "" }),
+                    footer: baileys.proto.Message.InteractiveMessage.Footer.create({ text: text }),
+                    nativeFlowMessage: baileys.proto.Message.InteractiveMessage.NativeFlowMessage.create({ buttons: [] })
+                }),
+            }, { quoted: m });
+            return await conn.relayMessage(msg.key.remoteJid, msg.message, { messageId: msg.key.id });
+        }
 
         //DB
         const set = db.set[botNumber]
@@ -503,8 +515,8 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case 'listcmd': {
-                let teks = `*CMD LIST - HASH*\n\n*INFO:* _Bold hash is Locked_\n${Object.entries(global.db.cmd).map(([key, value], index) => `${index + 1}. ${value.locked ? `*${key}*` : key} : ${value.text}`).join('\n')}`.trim()
-                conn.sendText(m.chat, teks, m);
+                let teks = `*CMD LIST - HASH*\n\n*INFO:* *Bold hash is Locked*\n${Object.entries(global.db.cmd).map(([key, value], index) => `${index + 1}. ${value.locked ? `*${key}*` : key} : ${value.text}`).join('\n')}`.trim()
+                await sendText(teks);
             }
                 break
             case 'lockcmd':
@@ -598,7 +610,7 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break
             case "get": {
-                if (!text) return m.reply(`Enter url!`);
+                if (!text) return m.reply(`_Enter url!_`);
                 try {
                     const gt = await axios.get(text, {
                         headers: {
@@ -819,13 +831,14 @@ module.exports = conn = async (conn, m, msg, store) => {
             }
                 break;
             case 'play':
-            case 'yta': {
-                const yts = require("yt-search");
+            case 'yta':
+            case 'song': {
                 if (!text) return m.reply(`_Enter query!_`);
                 const res = await yts(text);
                 const video = res.videos[0];
                 if (!video) throw new Error("No video found!");
                 const { title, url, views, ago, thumbnail, author } = video;
+                await sendText(`*Downloading ${title}...*`)
                 const { result } = await API.get("media.yt", { url });
                 const thumb = Buffer.from((await axios.get(thumbnail, { responseType: "arraybuffer" })).data);
                 const msgg = {
@@ -892,7 +905,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                     const mixx = ress.result.sort(() => 0.5 - Math.random())
                     const random = mixx.slice(0, imgc)
                     const album = random.map(url => ({ image: { url } }))
-                    await conn.sendAlbum(m.chat, { album })
+                    await conn.sendAlbum(m.chat, { album }, { quoted: m });
                 } else {
                     m.reply('_Error!_')
                 }
@@ -995,8 +1008,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 } else m.reply("_Reply to an image!_")
             }
                 break;
-            case 'lens':
-            case 'source': {
+            case 'lens': {
                 if (/image/.test(mime)) {
                     try {
                         const buff = await m.quoted.download();
@@ -1015,6 +1027,35 @@ module.exports = conn = async (conn, m, msg, store) => {
                         m.reply('_Error!_')
                     }
                 } else m.reply("_Reply to an image!_")
+            }
+                break;
+            case 'ytv': {
+                if (!text) return m.reply("_Enter url/query!_");
+                let [urll, qty] = text.split(',').map(v => v.trim());
+                qty = qty || "360";
+                let video;
+                if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(urll)) {
+                    video = { url: urll };
+                } else {
+                    const res = await yts(urll);
+                    video = res.all[0];
+                }
+                if (!video?.url) return m.reply("_Not Found!_");
+                const { title = "video", url } = video;
+                await sendText(`*Downloading ${title}...*`);
+                try {
+                    const { result } = await API.get("media.yt", { url, q: qty });
+                    if (!result?.url) return m.reply("_url not found!_");
+                    await conn.sendMessage(m.chat, {
+                            document: { url: result.url },
+                            mimetype: "video/mp4",
+                            fileName: `${result.title}.mp4`
+                        }, { quoted: m }
+                    );
+                } catch (e) {
+                    console.error(e);
+                    m.reply("_Error!_");
+                }
             }
                 break;
             case 'menu': {
@@ -1043,9 +1084,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                     try {
                         let evaled = await eval(`(async () => { return ${budy.slice(2)} })()`)
                         if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
-                        await m.reply(evaled)
+                        await sendText(evaled)
                     } catch (err) {
-                        await m.reply(String(err))
+                        await sendText(String(err))
                     }
                 }
                 if (budy.startsWith('e>')) {
@@ -1053,9 +1094,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                     try {
                         let evaled = await eval(`(async () => { ${budy.slice(2)} })()`)
                         if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
-                        await m.reply(evaled)
+                        await sendText(evaled)
                     } catch (err) {
-                        await m.reply(String(err))
+                        await sendText(String(err))
                     }
                 }
                 if (budy.startsWith('e$')) {
