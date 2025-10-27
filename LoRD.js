@@ -703,11 +703,9 @@ module.exports = conn = async (conn, m, msg, store) => {
                 let teks1 = text.split`|`[0] ? text.split`|`[0] : packname
                 let teks2 = text.split`|`[1] ? text.split`|`[1] : author
                 if (/image|webp/.test(mime)) {
-                    m.reply(mess.wait)
                     await conn.sendSticker(m.chat, media, m, { packname: teks1, author: teks2 })
                 } else if (/video/.test(mime)) {
                     if ((qmsg).seconds > 11) return m.reply('_Max 10 sec!_')
-                    m.reply(mess.wait)
                     await conn.sendSticker(m.chat, media, m, { packname: teks1, author: teks2 })
                 } else m.reply(`_Send/Reply to image/video/gif with caption ${prefix + command}\nVideo/Gif Duration 1-9 Seconds_`)
             }
