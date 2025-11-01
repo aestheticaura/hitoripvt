@@ -1,9 +1,9 @@
-sock.relayMessage(m.chat, {
+e> await conn.relayMessage(m.chat, {
     interactiveMessage: {
         contextInfo: {
             mentionedJid: [m.sender],
             externalAdReply: {
-                title: ownername,
+                title: "testt",
                 body: '',
                 thumbnailUrl: "https://telegra.ph/file/4e60fce32bf5179c2eaf4.jpg",
                 sourceUrl: `https://whyu-me.vercel.app`,
@@ -99,4 +99,20 @@ sock.relayMessage(m.chat, {
             })
         }
     }
-}, { userJid: m.sender })
+}, {
+    messageId: m.key.id,
+    additionalNodes: [{
+        tag: 'biz',
+        attrs: {},
+        content: [
+            {
+                tag: 'interactive',
+                attrs: { type: 'native_flow', v: '1' },
+                content: [{
+                    tag: 'native_flow',
+                    attrs: { name: 'quick_reply' }
+                }]
+            }
+        ]
+    }, [{ attrs: { biz_bot: '1' }, tag: 'bot' }]]
+})

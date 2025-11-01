@@ -53,6 +53,8 @@ const API_ROUTES = {
   },
   media: {
     movie: "/api/movie",
+    dl: "/api/movie/dl",
+    sub: "/api/subtitle",
     lyrics: "/api/lyrics",
     spotify: "/api/spotify",
     pin: "/api/pinterest",
