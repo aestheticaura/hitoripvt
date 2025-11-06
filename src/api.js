@@ -38,14 +38,21 @@ const API_ROUTES = {
     gpt: "/api/ai/gpt",
     gemini: "/api/ai/gemini",
     deepseek: "/api/ai/deepseek",
-    imgen: "/api/ai/imgen"
+    imgen: "/api/ai/imgen",
+    vidgen: "/api/ai/vidgen"
   },
   anime: {
     quotes: "/api/anime/quotes",
     info: "/api/anime",
     sfw: "/api/anime/sfw/",
     waifu: "/api/anime/waifu",
-    find: "/api/anime/find"
+    find: "/api/anime/find",
+    find2: "/api/anime/find2"
+  },
+  search: {
+    playstore: "/api/search/playstore",
+    amazon: "/api/amazon",
+    lyrics: "/api/lyrics",
   },
   fun: {
     joke: "/api/joke",
@@ -55,7 +62,6 @@ const API_ROUTES = {
     movie: "/api/movie",
     dl: "/api/movie/dl",
     sub: "/api/subtitle",
-    lyrics: "/api/lyrics",
     spotify: "/api/spotify",
     pin: "/api/pinterest",
     yt: "/api/ytdl",
@@ -73,10 +79,8 @@ const API_ROUTES = {
     upscale: "/api/tools/upscale",
     web2zip: "/api/web2zip",
     removeBg: "/api/tools/rmbg",
-    currency: "/api/currency"
-  },
-  ecom: {
-    amazon: "/api/amazon"
+    currency: "/api/currency",
+    ssweb: "/api/ssweb"
   },
   nsfw: {
     gen: "/api/nsfw/waifu",
