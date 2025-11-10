@@ -63,6 +63,7 @@ async function startNazeBot() {
 		auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, logger) },
 		logger,
 		browser: Browsers.ubuntu('Chrome'),
+		printQRInTerminal: true,
 		downloadHistory: false,
 		syncFullHistory: false,
 		markOnlineOnConnect: false,
