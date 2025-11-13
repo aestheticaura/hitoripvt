@@ -141,26 +141,40 @@ async function MessagesUpsert(conn, message, store) {
 		if (store.messages[remoteJid].keyId.has(msg.key.id)) return;
 		store.messages[remoteJid].array.push(msg);
 		store.messages[remoteJid].keyId.add(msg.key.id);
-		if (store.messages[remoteJid].array.length > (global.chatLength || 250)) {
+		if (store.messages[remoteJid].array.length > (global.chatLength||250)) {
 			const removed = store.messages[remoteJid].array.shift();
 			store.messages[remoteJid].keyId.delete(removed.key.id);
 		}
-		if (!store.groupMetadata || Object.keys(store.groupMetadata).length === 0) store.groupMetadata ??= await conn.groupFetchAllParticipating().catch(e => ({}));
+		if (store.messages[remoteJid].array.length % 50 === 0) {
+			store.messages[remoteJid].keyId = new Set(store.messages[remoteJid].array.map(m => m.key.id));
+		}
+		if (!store.groupMetadata || Object.keys(store.groupMetadata).length === 0) {
+			store.groupMetadata ??= await conn.groupFetchAllParticipating().catch(() => ({}));
+		}
 		const type = msg.message ? (getContentType(msg.message) || Object.keys(msg.message)[0]) : '';
-		const m = await Serialize(conn, msg, store)
+		const m = await Serialize(conn, msg, store);
 		require('../LoRD')(conn, m, msg, store);
-		if (db?.set?.[botNumber]?.readsw && msg.key.remoteJid === 'status@broadcast') { // If status-view (readsw) is enabled.
+		if (db?.set?.[botNumber]?.readsw && msg.key.remoteJid === 'status@broadcast') {
 			await conn.readMessages([msg.key]);
 			if (/protocolMessage/i.test(type)) {
-				await conn.sendFromOwner(global.db?.set?.[botNumber]?.owner?.map(x => x.id) || global.owner, `Status from @${msg.key.participant.split('@')[0]} was deleted`, msg, { mentions: [msg.key.participant] });
+				await conn.sendFromOwner(global.db?.set?.[botNumber]?.owner?.map(x => x.id) || global.owner,
+					`Status from @${msg.key.participant.split('@')[0]} was deleted`, msg, { mentions: [msg.key.participant] });
 			}
 			if (/(audioMessage|imageMessage|videoMessage|extendedTextMessage)/i.test(type)) {
-				let storyInfo = (type === 'extendedTextMessage') ? `Text Story: ${msg.message.extendedTextMessage.text || ''}` : (type === 'imageMessage') ? `Image Story ${msg.message.imageMessage.caption ? 'with caption: ' + msg.message.imageMessage.caption : ''}` : (type === 'videoMessage') ? `Video Story ${msg.message.videoMessage.caption ? 'with caption: ' + msg.message.videoMessage.caption : ''}` : (type === 'audioMessage') ? 'Audio Story' : '\nUnknown type, check manually';
-				await conn.sendFromOwner(global.db?.set?.[botNumber]?.owner?.map(x => x.id) || global.owner, `Viewed status from @${msg.key.participant.split('@')[0]}\n${storyInfo}`, msg, { mentions: [msg.key.participant] });
+				let storyInfo = (type === 'extendedTextMessage') ?
+					`Text Story: ${msg.message.extendedTextMessage.text || ''}` :
+					(type === 'imageMessage') ?
+						`Image Story ${msg.message.imageMessage.caption ? 'with caption: ' + msg.message.imageMessage.caption : ''}` :
+						(type === 'videoMessage') ?
+							`Video Story ${msg.message.videoMessage.caption ? 'with caption: ' + msg.message.videoMessage.caption : ''}` :
+							(type === 'audioMessage') ?
+								'Audio Story' : '\nUnknown type, check manually';
+				await conn.sendFromOwner(global.db?.set?.[botNumber]?.owner?.map(x => x.id) || global.owner,
+					`Viewed status from @${msg.key.participant.split('@')[0]}\n${storyInfo}`, msg, { mentions: [msg.key.participant] });
 			}
 		}
 	} catch (e) {
-		throw e;
+		console.error('MessagesUpsert error:', e);
 	}
 }
 
