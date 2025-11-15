@@ -10,7 +10,7 @@ global.HANDLER = ['-']
 global.API = require("./src/api");
 
 global.listv = ['*•*']
-global.tempatDB = 'database.json' //'mongodb+srv://...'
+global.tempatDB = 'database.json'
 global.tempatStore = 'mongodb+srv://lordxddd:lordjeevan26@userbotpvt.5gxfeuz.mongodb.net/?retryWrites=true&w=majority&appName=userbotpvt'
 global.pairing_code = false
 global.number_bot = ''
