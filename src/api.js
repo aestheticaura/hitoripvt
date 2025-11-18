@@ -83,6 +83,7 @@ const API_ROUTES = {
     ssweb: "/api/ssweb"
   },
   nsfw: {
+    dds: "/api/18/dirtyship",
     gen: "/api/nsfw/waifu",
     anime: "/api/anime/nsfw/"
   }

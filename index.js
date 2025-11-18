@@ -25,7 +25,7 @@ const msgRetryCounterCache = new NodeCache();
 server.listen(PORT, () => console.log('App listened on port', PORT));
 
 async function startNazeBot() {
-	const { state, saveCreds } = await useMultiDbAuthState();
+	const { state, saveCreds } = await useMultiFileAuthState('session');
 	const { version } = await fetchLatestBaileysVersion();
 	const logger = pino({ level: 'silent' });
 
@@ -173,17 +173,17 @@ async function startNazeBot() {
 		}
 	});
 
-	const validation = await validateAuthState();
-	if (validation.stats) console.log(`📊 Auth State: ${validation.stats.sessions} sessions, ${validation.stats.preKeys} pre-keys, ${validation.stats.lidMappings} LID mappings`);
-	if (!validation.valid && validation.issues) {
-		console.warn("⚠️  Auth state issues detected:");
-		validation.issues.forEach(issue => console.warn(`   - ${issue}`));
-		if (validation.issues.includes('No credentials found')) {
-			console.log("ℹ️  First time setup - will create new credentials");
-		}
-	} else if (validation.valid) {
-		console.log("✅ Auth state validated successfully");
-	}
+	// const validation = await validateAuthState();
+	// if (validation.stats) console.log(`📊 Auth State: ${validation.stats.sessions} sessions, ${validation.stats.preKeys} pre-keys, ${validation.stats.lidMappings} LID mappings`);
+	// if (!validation.valid && validation.issues) {
+	// 	console.warn("⚠️  Auth state issues detected:");
+	// 	validation.issues.forEach(issue => console.warn(`   - ${issue}`));
+	// 	if (validation.issues.includes('No credentials found')) {
+	// 		console.log("ℹ️  First time setup - will create new credentials");
+	// 	}
+	// } else if (validation.valid) {
+	// 	console.log("✅ Auth state validated successfully");
+	// }
 
 	return conn;
 }
