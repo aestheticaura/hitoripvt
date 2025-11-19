@@ -141,7 +141,7 @@ async function MessagesUpsert(conn, message, store) {
 		if (store.messages[remoteJid].keyId.has(msg.key.id)) return;
 		store.messages[remoteJid].array.push(msg);
 		store.messages[remoteJid].keyId.add(msg.key.id);
-		if (store.messages[remoteJid].array.length > (global.chatLength||250)) {
+		if (store.messages[remoteJid].array.length > (global.chatLength||100)) {
 			const removed = store.messages[remoteJid].array.shift();
 			store.messages[remoteJid].keyId.delete(removed.key.id);
 		}

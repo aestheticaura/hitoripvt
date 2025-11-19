@@ -817,7 +817,7 @@ module.exports = conn = async (conn, m, msg, store) => {
                 const thumb = Buffer.from((await axios.get(thumbnail, { responseType: "arraybuffer" })).data);
                 const msgg = {
                     document: { url: result.url }, mimetype: "audio/mp3", fileName: `${title}.mp3`, contextInfo: {
-                        externalAdReply: { title: ``, body: `${Func.frmtView(views)} views • ${ago}`, sourceUrl: "", mediaUrl: "", mediaType: 1, renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: "" }
+                        externalAdReply: { title: ``, body: `${Func.frmtView(views)} views • ${ago}`, sourceUrl: "", mediaUrl: "", mediaType: 1, renderLargerThumbnail: true, thumbnail: thumb, thumbnailUrl: thumbnail }
                     }
                 };
                 await conn.sendMessage(m.chat, msgg);
