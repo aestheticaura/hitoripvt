@@ -34,10 +34,41 @@
       "ban": false,
       "afkTime": -1,
       "afkReason": ""
+    },
+    "919746835297@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "130824804561050@lid": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "6285835356933@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
     }
   },
   "groups": {
     "919778383987-1633449038@g.us": {
+      "url": "",
+      "text": {},
+      "mute": false,
+      "leave": false,
+      "demote": false,
+      "promote": false
+    },
+    "120363400210428452@g.us": {
+      "url": "",
+      "text": {},
+      "mute": false,
+      "leave": false,
+      "demote": false,
+      "promote": false
+    },
+    "120363248826862499@g.us": {
       "url": "",
       "text": {},
       "mute": false,

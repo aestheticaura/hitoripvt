@@ -10,6 +10,7 @@ const webp = require('node-webpmux');
 const { exec } = require('child_process');
 const baileys = require('baileys');
 const yts = require("yt-search");
+const cloud = require('cloudscraper');
 const { GroupUpdate, LoadDataBase } = require('./src/message');
 const Func = require('./lib/function');
 const { toAudio, CUT } = require("./lib/converter");
