@@ -49,6 +49,66 @@
       "ban": false,
       "afkTime": -1,
       "afkReason": ""
+    },
+    "6283136911640@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "6285814786759@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "248391363756221@lid": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "17423699031@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "120363400210428452@g.us": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "131057017970754@lid": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "27636373627@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "260395377893534@lid": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "918111851324@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "6288226579576@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "2348166481004@s.whatsapp.net": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
+    },
+    "120363381350450325@g.us": {
+      "ban": false,
+      "afkTime": -1,
+      "afkReason": ""
     }
   },
   "groups": {
@@ -69,6 +129,22 @@
       "promote": false
     },
     "120363248826862499@g.us": {
+      "url": "",
+      "text": {},
+      "mute": false,
+      "leave": false,
+      "demote": false,
+      "promote": false
+    },
+    "120363381350450325@g.us": {
+      "url": "",
+      "text": {},
+      "mute": false,
+      "leave": false,
+      "demote": false,
+      "promote": false
+    },
+    "120363402948496660@g.us": {
       "url": "",
       "text": {},
       "mute": false,
